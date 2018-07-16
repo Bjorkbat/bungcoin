@@ -5,66 +5,24 @@
  * hypthothetical coin is used to track one's ownership of pig anus assets.
  */
 
-package bungcoin
+package main
 
-// A struct representing a block in the blockchain
-type Block struct {
-	Timestamp int64
-	Data []byte
-	PrevBlockHash []byte
-	Hash []byte
-}
+import (
+	"fmt"
 
-type Blockchain struct {
-	blocks []*Block
-}
+	"github.com/Bjorkbat/bungcoin/blockchain"
+)
 
-// Function used to create a new block
-func NewBlock(data string, prevBlockHash []byte) *Block {
+func main() {
+	bc := blockchain.NewBlockchain()
 
-	// Initialize the first 3 fields using args and current timestamp
-	block := &Block{
-		time.Now().Unix(),
-		[]byte(data),
-		prevBlockHash,
-		[]byte{},
+	bc.AddBlock("Send 1 Bungcoin to John")
+	bc.AddBlock("Send 2 more Bungcoin to John")
+
+	for _, block := range bc.Blocks {
+		fmt.Printf("Prev. hash: %x\n", block.PrevBlockHash)
+		fmt.Printf("Data: %s\n", block.Data)
+		fmt.Printf("Hash: %x\n", block.Hash)
+		fmt.Println()
 	}
-
-	// Set the hash on our block
-	block.SetHash()
-
-	// And return
-	return block
-}
-
-// Function used to set the hash on a block
-func (b *Block) SetHash() {
-	// Take the timestamp and convert it into a string.  From there we can easily
-	// turn it into a byte array
-	timestamp := []byte(strconv.FormatInt(b.Timestamp, 10))
-
-	// What's this gnarly thing?  Well, creating an array of byte arrays
-	// (technically slices) and joining these arrays of arrays using bytes.Join
-	// That second arg is typically reserved for seperators.  We're saying here
-	// that we won't want any seperators here by passing in an empty byte array
-	headers := bytes.Join([][]byte{b.PrevBlockHash, b.Data, timestamp}, []byte{})
-
-	// And he we create our hash
-	hash := sha256.Sum256(headers)
-	b.Hash = hash[:]
-}
-
-// Function to add blocks to the blockchain
-func (bc *Blockchain) AddBlock(data string) {
-	prevBlock := bc.blocks[len(bc.blocks) - 1]
-	newBlock := NewBlock(data, prevBlock.Hash)
-	bc.blocks = append(bc.blocks, newBlock)
-}
-
-func NewGenesisBlock() *Block {
-	return NewBlock("Genesis Block", []bte{})
-}
-
-func NewBlockchain() *Blockchain {
-	return &Blockchain{[]*Block{NewGenesisBlock()}}
 }
