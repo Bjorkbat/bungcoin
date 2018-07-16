@@ -15,6 +15,10 @@ type Block struct {
 	Hash []byte
 }
 
+type Blockchain struct {
+	blocks []*Block
+}
+
 // Function used to create a new block
 func NewBlock(data string, prevBlockHash []byte) *Block {
 
@@ -48,4 +52,19 @@ func (b *Block) SetHash() {
 	// And he we create our hash
 	hash := sha256.Sum256(headers)
 	b.Hash = hash[:]
+}
+
+// Function to add blocks to the blockchain
+func (bc *Blockchain) AddBlock(data string) {
+	prevBlock := bc.blocks[len(bc.blocks) - 1]
+	newBlock := NewBlock(data, prevBlock.Hash)
+	bc.blocks = append(bc.blocks, newBlock)
+}
+
+func NewGenesisBlock() *Block {
+	return NewBlock("Genesis Block", []bte{})
+}
+
+func NewBlockchain() *Blockchain {
+	return &Blockchain{[]*Block{NewGenesisBlock()}}
 }
