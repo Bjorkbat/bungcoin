@@ -5,9 +5,6 @@
 package block
 
 import (
-	"bytes"
-	"crypto/sha256"
-	"strconv"
 	"time"
 )
 
@@ -17,6 +14,7 @@ type Block struct {
 	Data []byte
 	PrevBlockHash []byte
 	Hash []byte
+	Nonce int
 }
 
 // Function used to create a new block
@@ -28,30 +26,16 @@ func NewBlock(data string, prevBlockHash []byte) *Block {
 		[]byte(data),
 		prevBlockHash,
 		[]byte{},
+		0,
 	}
 
-	// Set the hash on our block
-	block.SetHash()
+	pow := NewProofOfWork(block)
+	nonce, hash := pow.Run()
+	block.Hash = hash[:]
+	block.Nonce = nonce
 
 	// And return
 	return block
-}
-
-// Function used to set the hash on a block
-func (b *Block) SetHash() {
-	// Take the timestamp and convert it into a string.  From there we can easily
-	// turn it into a byte array
-	timestamp := []byte(strconv.FormatInt(b.Timestamp, 10))
-
-	// What's this gnarly thing?  Well, creating an array of byte arrays
-	// (technically slices) and joining these arrays of arrays using bytes.Join
-	// That second arg is typically reserved for seperators.  We're saying here
-	// that we won't want any seperators here by passing in an empty byte array
-	headers := bytes.Join([][]byte{b.PrevBlockHash, b.Data, timestamp}, []byte{})
-
-	// And he we create our hash
-	hash := sha256.Sum256(headers)
-	b.Hash = hash[:]
 }
 
 func NewGenesisBlock() *Block {
